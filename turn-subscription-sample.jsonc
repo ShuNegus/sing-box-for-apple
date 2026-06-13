@@ -1,0 +1,118 @@
+// turn-subscription-sample.jsonc
+// СЕМПЛ/СПЕЦИФИКАЦИЯ конфига, который отдаёт страница подписки Remnawave
+// (шаблон SINGBOX, по UA приложения). Показывает, как в подписку встроена
+// per-server TURN-информация (вариант B — статический sibling-блок "turn").
+//
+// ВАЖНО:
+//  - Это образец с ПЛЕЙСХОЛДЕРАМИ (<...>), не рабочий конфиг.
+//  - Формат с комментариями (jsonc) — для наглядности; реальная подписка отдаёт чистый JSON.
+//  - Блок "turn" — НЕ часть схемы sing-box. Приложение его читает и ВЫРЕЗАЕТ
+//    перед передачей конфига в ядро (ядро строго парсит и отвергнет лишние поля).
+//  - vk_link (ссылка на звонок) в конфиг НЕ кладётся — её вводит юзер в приложении.
+{
+  "log": { "level": "info" },
+
+  "dns": {
+    "servers": [
+      { "type": "udp", "tag": "remote", "server": "1.1.1.1", "detour": "proxy" },
+      { "type": "udp", "tag": "local",  "server": "8.8.8.8",  "detour": "direct" }
+    ],
+    "final": "remote"
+  },
+
+  "inbounds": [
+    { "type": "tun", "tag": "tun-in", "address": ["172.18.0.1/30"], "auto_route": true, "stack": "gvisor" }
+  ],
+
+  "outbounds": [
+    // ── Reality/VLESS-ноды (на ДОМЕНАХ). Именно их оборачивает TURN. ──
+    {
+      "type": "vless", "tag": "🇯🇵 JP",
+      "server": "jp.bublik.pro", "server_port": 443,            // ← ключ связи с блоком turn (по host)
+      "uuid": "<jp_uuid>", "flow": "xtls-rprx-vision",
+      "tls": {
+        "enabled": true, "server_name": "ya.ru",
+        "reality": { "enabled": true, "public_key": "<jp_reality_pbk>", "short_id": "" },
+        "utls": { "enabled": true, "fingerprint": "chrome" }
+      }
+      // detour здесь НЕ задаётся в подписке — приложение проставит его на лету,
+      // когда TURN включён и есть VK-ссылка (см. блок "turn" ниже).
+    },
+    {
+      "type": "vless", "tag": "🇺🇸 USA-1",
+      "server": "usa-1.bublik.pro", "server_port": 443,
+      "uuid": "<usa1_uuid>", "flow": "xtls-rprx-vision",
+      "tls": {
+        "enabled": true, "server_name": "ya.ru",
+        "reality": { "enabled": true, "public_key": "<usa1_reality_pbk>", "short_id": "" },
+        "utls": { "enabled": true, "fingerprint": "chrome" }
+      }
+    },
+
+    // ── HY2-нода (на IP). Параллельный анти-шейп путь, TURN её НЕ касается. ──
+    {
+      "type": "hysteria2", "tag": "🇯🇵 JP HY2",
+      "server": "<jp_ip>", "server_port": 443,
+      "password": "<jp_uuid>",
+      "tls": { "enabled": true, "server_name": "hy2.bublik.pro", "alpn": ["h3"] }
+    },
+
+    // ── Служебные ──
+    { "type": "selector", "tag": "proxy", "outbounds": ["🇯🇵 JP", "🇺🇸 USA-1", "🇯🇵 JP HY2"], "default": "🇯🇵 JP" },
+    { "type": "direct", "tag": "direct", "connect_timeout": "5s" }
+  ],
+
+  "route": {
+    "rules": [ { "action": "sniff" } ],
+    "final": "proxy",
+    "default_domain_resolver": { "server": "local" },
+    "auto_detect_interface": true
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TURN-метаданные (вариант B). Приложение читает и ВЫРЕЗАЕТ этот ключ.
+  // Связь сервер↔TURN: ключ в "servers" == outbound.server (домен) VLESS-ноды.
+  // ═══════════════════════════════════════════════════════════════════════════
+  "turn": {
+    "version": 1,
+    "vk_link_required": true,            // ссылку на звонок вводит юзер; в конфиге её нет
+
+    // Общие параметры для всех нод (любой можно переопределить per-server).
+    "defaults": {
+      "wrap_mode": true,
+      "num_streams": 10,
+      "streams_per_cred": 2,
+      "ready_timeout": 30,               // сек ожидания первой TURN-сессии
+      "captcha_solver": "v2"
+    },
+
+    // Перечисляем ВСЕ ноды (даже те, на которые юзер не подписан — лишние игнорируются).
+    "servers": {
+      "jp.bublik.pro": {
+        "supported": true,
+        "peer_addr": "<jp_ip>:56000",    // IP ноды:порт vk-turn-proxy (НЕ домен — без зависимости от DNS)
+        "wrap_key_hex": "<jp_wrap_key>"  // per-node, из servers.yaml
+      },
+      "usa-1.bublik.pro": {
+        "supported": true,
+        "peer_addr": "<usa1_ip>:56000",
+        "wrap_key_hex": "<usa1_wrap_key>"
+      },
+      "ru.bublik.pro": {
+        "supported": false               // нода без vk-turn-proxy
+      }
+    }
+  }
+}
+
+// ── Как приложение это применяет (Swift-фича, потом): ──
+//  1. Тумблер TURN включён И есть VK-ссылка →
+//  2. для каждого present-outbound, чей server ∈ turn.servers и supported:true:
+//       собрать `vk-turn` outbound = defaults ⊕ per-server ⊕ { vk_link: <ссылка юзера> },
+//       проставить этому outbound'у detour на него.
+//  3. Вырезать ключ "turn" → отдать чистый sing-box ядру.
+//  4. TURN выкл / нет ссылки / старый шаблон без "turn" → не инжектим (graceful no-op).
+//
+// ── Генерация/поддержка: ──
+//  Remnawave не хранит wrap_key/IP → блок "turn" запекается в templateJson вручную
+//  из servers.yaml; обновлять при смене ключей/IP нод (как HY2-хосты и DNS).
