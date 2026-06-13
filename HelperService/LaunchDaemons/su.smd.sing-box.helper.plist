@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>Label</key>
-	<string>io.nekohasekai.sfavt.helper</string>
+	<string>su.smd.sing-box.helper</string>
 	<key>BundleProgram</key>
 	<string>Contents/Helpers/RootHelper</string>
 	<key>MachServices</key>
 	<dict>
-		<key>287TTNZF8L.io.nekohasekai.sfavt.helper</key>
+		<key>7G6756ME5J.su.smd.sing-box.helper</key>
 		<true/>
 	</dict>
 	<key>AssociatedBundleIdentifiers</key>
 	<array>
-		<string>io.nekohasekai.sfavt.standalone</string>
+		<string>su.smd.sing-box.standalone</string>
 	</array>
 	<key>RunAtLoad</key>
 	<true/>
