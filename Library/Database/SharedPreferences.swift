@@ -165,4 +165,6 @@ public enum SharedPreferences {
     public static let turnVKLink = Preference<String>("turn_vk_link", defaultValue: "")
     public static let turnPeers = Preference<Int>("turn_peers", defaultValue: 10)
     public static let turnCaptchaManual = Preference<Bool>("turn_captcha_manual", defaultValue: false)
+    // Server selected from the home picker while disconnected; applied when groups appear.
+    public static let turnSelectedServer = Preference<String>("turn_selected_server", defaultValue: "")
 }

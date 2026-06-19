@@ -62,6 +62,22 @@ public enum TurnOutbounds {
     // Outbound types that carry a `server` host and can be TURN-wrapped (TCP).
     public static let proxyTypes: Set<String> = ["vless", "vmess", "trojan", "shadowsocks"]
 
+    // First selectable selector group: its tag and member outbound tags.
+    // Used as the offline (disconnected) source for the home server picker.
+    public static func selectorGroup(config: [String: Any]) -> (tag: String, members: [String])? {
+        guard let outbounds = config["outbounds"] as? [[String: Any]] else { return nil }
+        for outbound in outbounds {
+            guard outbound["type"] as? String == "selector",
+                  let tag = outbound["tag"] as? String,
+                  let members = outbound["outbounds"] as? [String], !members.isEmpty
+            else {
+                continue
+            }
+            return (tag, members)
+        }
+        return nil
+    }
+
     // tag -> server host, for proxy outbounds only.
     public static func tagToHost(config: [String: Any]) -> [String: String] {
         guard let outbounds = config["outbounds"] as? [[String: Any]] else { return [:] }

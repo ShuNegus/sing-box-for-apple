@@ -174,6 +174,7 @@ public struct ProfileCard: View {
                     VStack(alignment: .leading, spacing: 12) {
                         profileInfo(for: profile)
                         actionButtonsRow(for: profile)
+                        TurnProfileControls(profile: profile)
                     }
                 }
             }

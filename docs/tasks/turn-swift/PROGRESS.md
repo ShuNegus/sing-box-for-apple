@@ -19,4 +19,12 @@
 - `ApplicationLibrary/Views/Setting/TurnSettingView.swift` (новый): VK-ссылка (TextField), пиры (Picker 1–50, кросс-платформенно вместо Stepper — tvOS), капча (Picker авто/ручной). Грузит/сохраняет prefs паттерном isLoading+loadSettings+onChangeCompat.
 - `SettingView.swift`: добавлен `turn` в `SettingsPage`+`Tabs`, во все switch'и (page/title/icon/contentView/destinationView) и ссылку в тело.
 - ✅ SFI BUILD SUCCEEDED.
-## Фаза 3 — Домашний блок (свич + пикер)  — TODO
+## Фаза 3 — Домашний блок (свич + пикер)  ✅ ГОТОВО
+- `Library/Shared/TurnSubscription.swift`: + `TurnOutbounds.selectorGroup` (офлайн-список серверов из selector).
+- `SharedPreferences`: + `turnSelectedServer` (выбор сервера офлайн, применяется при появлении групп).
+- `ApplicationLibrary/Views/Dashboard/Cards/TurnProfileControls.swift` (новый): показывается когда конфиг имеет `turn` (hasTURN); свич «Connect through TURN» + пикер сервера. Пикер: лайв-группы (`environments.commandClient.$groups` → `GroupListViewModel`/`selectOutbound`) при подключении, иначе офлайн-список из конфига. При TURN on фильтрует сервера по `supportedHosts`; при включении авто-переключает на поддерживаемый; тоггл рестартит туннель если подключено.
+- `ProfileCard.swift`: встроен `TurnProfileControls` в блок профиля.
+- ✅ SFI BUILD SUCCEEDED.
+
+## Итог
+Все 3 фазы собираются. Клиент: вырезает `turn` всегда (чинит live-подписку), при TURN on инжектит `vk-turn`+detour; настройки Turn (ссылка/пиры/капча); домашний блок (свич + пикер с фильтром). Визуальный/боевой тест на девайсе с реальной VK-ссылкой — за пользователем.
