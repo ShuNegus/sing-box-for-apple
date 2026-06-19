@@ -21,6 +21,13 @@ public struct TurnPreferences {
 // outbound is injected per supported server and the matching proxy outbound
 // gets a `detour` pointing at it (variant B — native vk-turn outbound).
 public enum TurnConfigInjector {
+    // Returns the config with the non-schema `turn` block removed (no injection).
+    // Use this anywhere the sing-box core validates a stored subscription
+    // (LibboxCheckConfig) — the original (with `turn`) is kept on disk for the UI.
+    public static func stripped(configJSON: String) -> String {
+        transform(configJSON: configJSON, preferences: TurnPreferences(enabled: false, vkLink: "", peers: 0, captchaManual: false))
+    }
+
     public static func transform(configJSON: String, preferences: TurnPreferences) -> String {
         guard let data = configJSON.data(using: .utf8),
               var config = try? JSONSerialization.jsonObject(with: data) as? [String: Any]

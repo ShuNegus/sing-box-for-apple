@@ -142,7 +142,7 @@ public final class NewProfileViewModel: BaseViewModel {
             let remoteContent = try await HTTPClient.getStringAsync(remotePath)
             try await BlockingIO.run {
                 var error: NSError?
-                LibboxCheckConfig(remoteContent, &error)
+                LibboxCheckConfig(TurnConfigInjector.stripped(configJSON: remoteContent), &error)
                 if let error {
                     throw error
                 }

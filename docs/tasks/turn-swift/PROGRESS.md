@@ -28,3 +28,12 @@
 
 ## Итог
 Все 3 фазы собираются. Клиент: вырезает `turn` всегда (чинит live-подписку), при TURN on инжектит `vk-turn`+detour; настройки Turn (ссылка/пиры/капча); домашний блок (свич + пикер с фильтром). Визуальный/боевой тест на девайсе с реальной VK-ссылкой — за пользователем.
+
+## Фикс — валидация конфига при создании/обновлении профиля  ✅
+Девайс-тест выявил: `turn` вырезался только на старте туннеля, но Remnawave-конфиг
+валидируется ядром (`LibboxCheckConfig`) ещё при СОЗДАНИИ/ОБНОВЛЕНИИ профиля и в
+редакторах — на сыром контенте с `turn` → `decode config: turn: unknown field`.
+Решение: `TurnConfigInjector.stripped()` — валидируем ВЫРЕЗАННУЮ копию, храним ОРИГИНАЛ
+(нужен UI/инжектору). Поправлены 5 мест: NewProfileViewModel (create), Profile+Update
+(update), EditProfileContentViewModel + SFI/MacLibrary ProfileEditorWrapperView (редакторы;
++`import Library`). SFI BUILD SUCCEEDED.

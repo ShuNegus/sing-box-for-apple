@@ -29,6 +29,9 @@
         }
       }
     },
+    "%lld" : {
+
+    },
     "%lld Profiles" : {
       "localizations" : {
         "fa" : {
@@ -710,6 +713,9 @@
         }
       }
     },
+    "Automatic" : {
+
+    },
     "Automatic Update Check" : {
       "localizations" : {
         "fa" : {
@@ -1129,6 +1135,9 @@
           }
         }
       }
+    },
+    "Captcha" : {
+
     },
     "Cellular" : {
       "localizations" : {
@@ -1690,6 +1699,9 @@
           }
         }
       }
+    },
+    "Connect through TURN" : {
+
     },
     "Connect via SSH" : {
       "localizations" : {
@@ -3687,6 +3699,9 @@
     "enforceRoutes" : {
       "shouldTranslate" : false
     },
+    "Ephemeral VK Calls link. Required to connect through TURN — it is entered here, not stored in the subscription." : {
+
+    },
     "Error" : {
       "localizations" : {
         "fa" : {
@@ -4897,6 +4912,9 @@
         }
       }
     },
+    "How the VK captcha is solved. Automatic solves it in the background. Manual (webview) is not available yet." : {
+
+    },
     "http://..." : {
       "localizations" : {
         "fa" : {
@@ -5006,6 +5024,9 @@
           }
         }
       }
+    },
+    "https://vk.com/call/join/…" : {
+
     },
     "iCloud" : {
       "localizations" : {
@@ -6437,6 +6458,9 @@
         }
       }
     },
+    "Manual" : {
+
+    },
     "Match Domains" : {
       "localizations" : {
         "fa" : {
@@ -7506,6 +7530,9 @@
         }
       }
     },
+    "Number of parallel TURN sessions (streams). Default 10, max 50." : {
+
+    },
     "Ok" : {
       "localizations" : {
         "fa" : {
@@ -8038,6 +8065,9 @@
           }
         }
       }
+    },
+    "Peers" : {
+
     },
     "Ping" : {
       "localizations" : {
@@ -11108,6 +11138,9 @@
         }
       }
     },
+    "Turn" : {
+
+    },
     "Type" : {
       "localizations" : {
         "fa" : {
@@ -11713,6 +11746,9 @@
           }
         }
       }
+    },
+    "VK Call Link" : {
+
     },
     "VPN will not connect automatically." : {
       "localizations" : {
