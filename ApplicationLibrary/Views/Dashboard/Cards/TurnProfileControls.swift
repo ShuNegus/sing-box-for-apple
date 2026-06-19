@@ -49,7 +49,7 @@ struct TurnProfileControls: View {
         if let group = mainGroup, !visibleItems(group).isEmpty {
             Picker("Server", selection: Binding(
                 get: { group.selected },
-                set: { groupModel.selectOutbound(groupTag: group.tag, outboundTag: $0) }
+                set: { selectLive(group, $0) }
             )) {
                 ForEach(visibleItems(group), id: \.tag) { item in
                     Text(item.tag).tag(item.tag)
@@ -97,6 +97,14 @@ struct TurnProfileControls: View {
         }
     }
 
+    private func selectLive(_ group: OutboundGroup, _ tag: String) {
+        offlineSelection = tag
+        groupModel.selectOutbound(groupTag: group.tag, outboundTag: tag)
+        Task {
+            await SharedPreferences.turnSelectedServer.set(tag)
+        }
+    }
+
     private func setOfflineSelection(_ tag: String) {
         offlineSelection = tag
         Task {
@@ -111,7 +119,7 @@ struct TurnProfileControls: View {
         let host = tagToHost[group.selected]
         if host == nil || !supportedHosts.contains(host!) {
             if let first = visibleItems(group).first {
-                groupModel.selectOutbound(groupTag: group.tag, outboundTag: first.tag)
+                selectLive(group, first.tag)
             }
         }
     }

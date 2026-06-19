@@ -241,7 +241,8 @@ public class ExtensionProfile: ObservableObject {
             enabled: SharedPreferences.turnEnabled.get(),
             vkLink: SharedPreferences.turnVKLink.get(),
             peers: SharedPreferences.turnPeers.get(),
-            captchaManual: SharedPreferences.turnCaptchaManual.get()
+            captchaManual: SharedPreferences.turnCaptchaManual.get(),
+            selectedServer: SharedPreferences.turnSelectedServer.get()
         )
         let finalContent = TurnConfigInjector.transform(configJSON: configContent, preferences: turnPreferences)
         options["configContent"] = NSString(string: finalContent)

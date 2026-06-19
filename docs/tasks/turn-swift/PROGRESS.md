@@ -45,3 +45,17 @@
 SwiftUI: модификатор жизненного цикла на условно-пустом view). Парсер на реальном конфиге юзера
 проверен standalone — `hasSupported=true`, 7 хостов, selectorGroup найден. Фикс: корень body —
 всегда присутствующий `VStack` (хостит `.task`). SFI BUILD SUCCEEDED.
+
+## Фикс — нет интернета / нет TURN / выбор «прыгает» (девайс)  ✅
+Один корень: selector `→ Remnawave` БЕЗ `default` → ядро берёт первый член «📱 Cascade»
+(vless на 127.0.0.1:9000, битый локальный) → нет интернета (issue 1), нет TURN (Cascade не в
+turn.servers → нет detour → нет turn-логов, issue 2). А в sing-box 1.14 нет `store_selected`:
+кэш ВСЕГДА > default, поэтому выбор «прыгал на прошлый/Cascade» (issue 3).
+Фикс в `transform`:
+- задаём selector `default` = выбранный сервер (pref `turnSelectedServer`) или первый РЕАЛЬНЫЙ
+  узел (host ∈ turn.servers), минуя Cascade;
+- привязываем `experimental.cache_file.cache_id` к хосту выбранного сервера (`remnawave@<host>`)
+  → смена сервера = новый namespace кэша = `default` побеждает (и лечит уже застрявший кэш).
+`turnSelectedServer` пишут оба пикера (live+offline) и авто-выбор. ExtensionProfile прокидывает pref.
+Проверено standalone на реальном конфиге юзера: A(off)→default=Russia, B(on,pref=Japan)→default=Japan,
+detour у Japan, 7 vk-turn, cache_id пиннится; оба `check` VALID. SFI BUILD SUCCEEDED.
