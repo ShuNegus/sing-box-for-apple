@@ -158,4 +158,11 @@ public enum SharedPreferences {
 
     public static let enabledDashboardCards = Preference<[String]>("enabled_dashboard_cards", defaultValue: [])
     public static let dashboardCardOrder = Preference<[String]>("dashboard_card_order", defaultValue: [])
+
+    // TURN
+
+    public static let turnEnabled = Preference<Bool>("turn_enabled", defaultValue: false)
+    public static let turnVKLink = Preference<String>("turn_vk_link", defaultValue: "")
+    public static let turnPeers = Preference<Int>("turn_peers", defaultValue: 10)
+    public static let turnCaptchaManual = Preference<Bool>("turn_captcha_manual", defaultValue: false)
 }
