@@ -37,3 +37,11 @@
 (нужен UI/инжектору). Поправлены 5 мест: NewProfileViewModel (create), Profile+Update
 (update), EditProfileContentViewModel + SFI/MacLibrary ProfileEditorWrapperView (редакторы;
 +`import Library`). SFI BUILD SUCCEEDED.
+
+## Фикс — свич TURN не появлялся (девайс)  ✅
+Профиль создавался, подписка с `turn` (7 серверов supported), но контролов в блоке нет.
+Причина: `.task` висел на `Group { if hasTURN {…} }`, который при hasTURN=false схлопывается
+в пустой view → `.task` не запускался → `load()` не звался → `hasTURN` навсегда false (ловушка
+SwiftUI: модификатор жизненного цикла на условно-пустом view). Парсер на реальном конфиге юзера
+проверен standalone — `hasSupported=true`, 7 хостов, selectorGroup найден. Фикс: корень body —
+всегда присутствующий `VStack` (хостит `.task`). SFI BUILD SUCCEEDED.

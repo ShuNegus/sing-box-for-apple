@@ -20,17 +20,19 @@ struct TurnProfileControls: View {
     @State private var appliedOfflineSelection = false
 
     var body: some View {
-        Group {
+        // NB: an always-present hosting view is required so `.task` actually runs
+        // (a Group that resolves to nothing when hasTURN==false would skip it,
+        // and load() would never set hasTURN).
+        VStack(alignment: .leading, spacing: 12) {
             if hasTURN {
-                VStack(alignment: .leading, spacing: 12) {
-                    Divider()
-                    Toggle(isOn: Binding(get: { turnEnabled }, set: setTurnEnabled)) {
-                        Label("Connect through TURN", systemImage: "phone.connection.fill")
-                    }
-                    serverPicker
+                Divider()
+                Toggle(isOn: Binding(get: { turnEnabled }, set: setTurnEnabled)) {
+                    Label("Connect through TURN", systemImage: "phone.connection.fill")
                 }
+                serverPicker
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .task(id: profile.id) {
             await load()
         }
