@@ -15,5 +15,8 @@
 
 ✅ SFI собирается (BUILD SUCCEEDED).
 
-## Фаза 2 — Настройки Turn  — TODO
+## Фаза 2 — Настройки Turn  ✅ ГОТОВО
+- `ApplicationLibrary/Views/Setting/TurnSettingView.swift` (новый): VK-ссылка (TextField), пиры (Picker 1–50, кросс-платформенно вместо Stepper — tvOS), капча (Picker авто/ручной). Грузит/сохраняет prefs паттерном isLoading+loadSettings+onChangeCompat.
+- `SettingView.swift`: добавлен `turn` в `SettingsPage`+`Tabs`, во все switch'и (page/title/icon/contentView/destinationView) и ссылку в тело.
+- ✅ SFI BUILD SUCCEEDED.
 ## Фаза 3 — Домашний блок (свич + пикер)  — TODO
