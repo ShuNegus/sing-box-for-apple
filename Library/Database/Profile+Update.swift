@@ -7,7 +7,7 @@ public extension Profile {
         if type != .remote {
             return
         }
-        let url = remoteURL
+        let url = remoteURL.map(HTTPClient.normalizeURL)
         let remoteContent = try await HTTPClient.getStringAsync(url)
         try await BlockingIO.run {
             var error: NSError?

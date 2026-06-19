@@ -139,7 +139,8 @@ public final class NewProfileViewModel: BaseViewModel {
             }
             savePath = remotePath
         } else if profileType == .remote {
-            let remoteContent = try await HTTPClient.getStringAsync(remotePath)
+            let normalizedURL = HTTPClient.normalizeURL(remotePath)
+            let remoteContent = try await HTTPClient.getStringAsync(normalizedURL)
             try await BlockingIO.run {
                 var error: NSError?
                 LibboxCheckConfig(TurnConfigInjector.stripped(configJSON: remoteContent), &error)
@@ -154,7 +155,7 @@ public final class NewProfileViewModel: BaseViewModel {
                 try remoteContent.write(to: profileConfig, atomically: true, encoding: .utf8)
             }
             savePath = "configs/config_\(nextProfileID).json"
-            remoteURL = remotePath
+            remoteURL = normalizedURL
             lastUpdated = .now
         }
 
