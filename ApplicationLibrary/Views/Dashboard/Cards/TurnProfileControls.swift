@@ -30,7 +30,7 @@ struct TurnProfileControls: View {
                     Label {
                         Text("Connect through TURN")
                     } icon: {
-                        Image("VKTurn")
+                        Image("VKTurn", bundle: ApplicationLibrary.bundle)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 22, height: 22)
