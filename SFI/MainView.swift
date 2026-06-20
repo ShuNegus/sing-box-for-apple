@@ -16,6 +16,7 @@ struct MainView: View {
     @State private var showConnections = false
     @State private var buttonState = ButtonVisibilityState()
     @State private var initializedTabs: Set<NavigationPage> = []
+    @StateObject private var captchaMonitor = TurnCaptchaMonitor()
 
     private let profileEditor: (Binding<String>, Bool) -> AnyView = { text, isEditable in
         AnyView(ProfileEditorWrapperView(text: text, isEditable: isEditable))
@@ -248,6 +249,11 @@ struct MainView: View {
                 .sheet(isPresented: $showConnections) {
                     ConnectionsSheetContent()
                 }
+                .sheet(isPresented: $captchaMonitor.showCaptcha, onDismiss: {
+                    captchaMonitor.userDismissed()
+                }) {
+                    TurnCaptchaSheet()
+                }
         }
         .onAppear {
             environments.postReload()
@@ -297,6 +303,8 @@ struct MainView: View {
         if newState != buttonState {
             buttonState = newState
         }
+        let status = environments.extensionProfile?.status
+        captchaMonitor.setActive(status == .connecting || status == .connected || status == .reasserting)
     }
 
     private struct AccessoryInset<StatusBar: View, FAB: View>: View {
