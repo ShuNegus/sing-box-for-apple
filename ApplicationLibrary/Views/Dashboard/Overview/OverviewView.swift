@@ -8,6 +8,7 @@ public struct OverviewView: View {
     @EnvironmentObject private var environments: ExtensionEnvironments
     @EnvironmentObject private var profile: ExtensionProfile
     @StateObject private var coordinator = OverviewViewModel()
+    @StateObject private var turnStats = TurnStatsModel()
     @ObservedObject private var configuration: DashboardCardConfiguration
 
     @Binding private var profileList: [ProfilePreview]
@@ -42,6 +43,8 @@ public struct OverviewView: View {
         }
         .alert($coordinator.alert)
         .disabled(!Variant.screenshotMode && (!profile.status.isSwitchable || coordinator.reasserting))
+        .onAppear { turnStats.start() }
+        .onDisappear { turnStats.stop() }
     }
 
     @ViewBuilder
@@ -49,8 +52,15 @@ public struct OverviewView: View {
         let visibleCards = configuration.orderedEnabledCards.filter(shouldShowCard)
         let groupedCards = groupCards(visibleCards)
 
+        // Index of the first full-width row (httpProxy/clashMode/profile section):
+        // the TURN stats card is injected right before it, above System HTTP Proxy.
+        let turnInsertIndex = groupedCards.firstIndex { $0.contains { !$0.isHalfWidth } }
+
         VStack(spacing: 16) {
-            ForEach(Array(groupedCards.enumerated()), id: \.offset) { _, group in
+            ForEach(Array(groupedCards.enumerated()), id: \.offset) { index, group in
+                if index == turnInsertIndex, turnStats.enabled, profile.status.isConnected {
+                    TurnStatsCard(stat: turnStats.current)
+                }
                 if group.count == 2 {
                     HStack(spacing: 16) {
                         cardView(for: group[0])

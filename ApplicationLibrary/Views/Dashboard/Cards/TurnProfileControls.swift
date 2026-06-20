@@ -70,6 +70,7 @@ struct TurnProfileControls: View {
         groupModel.groups.first { $0.selectable && !$0.items.isEmpty }
     }
 
+
     private func tagSupported(_ tag: String) -> Bool {
         guard turnEnabled else { return true }
         guard let host = tagToHost[tag] else { return false }
