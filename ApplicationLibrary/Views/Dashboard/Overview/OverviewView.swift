@@ -8,6 +8,7 @@ public struct OverviewView: View {
     @EnvironmentObject private var environments: ExtensionEnvironments
     @EnvironmentObject private var profile: ExtensionProfile
     @StateObject private var coordinator = OverviewViewModel()
+    @StateObject private var turnStats = TurnStatsModel()
     @ObservedObject private var configuration: DashboardCardConfiguration
 
     @Binding private var profileList: [ProfilePreview]
@@ -42,6 +43,8 @@ public struct OverviewView: View {
         }
         .alert($coordinator.alert)
         .disabled(!Variant.screenshotMode && (!profile.status.isSwitchable || coordinator.reasserting))
+        .onAppear { turnStats.start() }
+        .onDisappear { turnStats.stop() }
     }
 
     @ViewBuilder
@@ -55,8 +58,8 @@ public struct OverviewView: View {
 
         VStack(spacing: 16) {
             ForEach(Array(groupedCards.enumerated()), id: \.offset) { index, group in
-                if index == turnInsertIndex {
-                    TurnStatsCard()
+                if index == turnInsertIndex, let stat = turnStats.current {
+                    TurnStatsCard(stat: stat)
                 }
                 if group.count == 2 {
                     HStack(spacing: 16) {

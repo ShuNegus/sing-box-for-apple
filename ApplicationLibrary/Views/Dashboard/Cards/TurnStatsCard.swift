@@ -1,34 +1,58 @@
 import Library
 import SwiftUI
 
-// Full-width dashboard card with live TURN pipeline stats. Self-hiding: renders
-// nothing unless connected through TURN (the tunnel reports a started vk-turn
-// outbound). Shown above the System HTTP Proxy card.
+// Polls the tunnel-process TURN stats endpoint and publishes the in-use server's
+// snapshot. Owned by an always-present view (OverviewView) so polling runs even
+// while the card itself is hidden.
 @MainActor
-public struct TurnStatsCard: View {
-    @State private var stat: TurnStat?
-    @State private var task: Task<Void, Never>?
+public final class TurnStatsModel: ObservableObject {
+    @Published public private(set) var current: TurnStat?
+
+    private var task: Task<Void, Never>?
 
     public init() {}
 
-    public var body: some View {
-        Group {
-            if let stat, stat.started {
-                DashboardCardView(title: "", isHalfWidth: false) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            DashboardCardHeader(icon: "point.3.connected.trianglepath.dotted", title: "TURN")
-                            Spacer()
-                            statusBadge(stat)
-                        }
-                        statRow(String(localized: "Peers"), "\(stat.active)/\(stat.target)")
-                        statRow(String(localized: "Streams opened"), "\(stat.opened)")
-                    }
-                }
+    public func start() {
+        guard task == nil else { return }
+        task = Task { [weak self] in
+            while !Task.isCancelled {
+                let all = await TurnStats.fetchAll()
+                // The in-use server is the one whose lazy dialer has started.
+                let stat = all.filter(\.started).max(by: { $0.active < $1.active })
+                self?.current = stat
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
             }
         }
-        .onAppear { start() }
-        .onDisappear { stop() }
+    }
+
+    public func stop() {
+        task?.cancel()
+        task = nil
+        current = nil
+    }
+}
+
+// Full-width dashboard card with live TURN pipeline stats. Rendered only when a
+// started vk-turn outbound exists (connected through TURN), above System HTTP Proxy.
+public struct TurnStatsCard: View {
+    let stat: TurnStat
+
+    public init(stat: TurnStat) {
+        self.stat = stat
+    }
+
+    public var body: some View {
+        DashboardCardView(title: "", isHalfWidth: false) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    DashboardCardHeader(icon: "point.3.connected.trianglepath.dotted", title: "TURN")
+                    Spacer()
+                    statusBadge
+                }
+                statRow(String(localized: "Peers"), "\(stat.active)/\(stat.target)")
+                statRow(String(localized: "Streams opened"), "\(stat.opened)")
+            }
+        }
     }
 
     private func statRow(_ name: String, _ value: String) -> some View {
@@ -44,14 +68,14 @@ public struct TurnStatsCard: View {
     }
 
     @ViewBuilder
-    private func statusBadge(_ stat: TurnStat) -> some View {
-        let (text, color) = stage(stat)
+    private var statusBadge: some View {
+        let (text, color) = stage
         Text(text)
             .font(.subheadline.weight(.medium))
             .foregroundStyle(color)
     }
 
-    private func stage(_ stat: TurnStat) -> (String, Color) {
+    private var stage: (String, Color) {
         if stat.active == 0 {
             return (String(localized: "Connecting…"), .orange)
         }
@@ -59,22 +83,5 @@ public struct TurnStatsCard: View {
             return (String(localized: "Establishing"), .orange)
         }
         return (String(localized: "Active"), .green)
-    }
-
-    private func start() {
-        guard task == nil else { return }
-        task = Task {
-            while !Task.isCancelled {
-                let all = await TurnStats.fetchAll()
-                // The in-use server is the one whose lazy dialer has started.
-                stat = all.filter(\.started).max(by: { $0.active < $1.active })
-                try? await Task.sleep(nanoseconds: 2_000_000_000)
-            }
-        }
-    }
-
-    private func stop() {
-        task?.cancel()
-        task = nil
     }
 }
