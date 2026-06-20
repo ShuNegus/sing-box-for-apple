@@ -1815,6 +1815,9 @@
         }
       }
     },
+    "Connecting…" : {
+
+    },
     "Connection" : {
       "localizations" : {
         "fa" : {
@@ -3729,6 +3732,9 @@
           }
         }
       }
+    },
+    "Establishing" : {
+
     },
     "Ethernet" : {
       "localizations" : {
@@ -10388,6 +10394,9 @@
         }
       }
     },
+    "Streams opened" : {
+
+    },
     "STUN Test" : {
       "localizations" : {
         "fa" : {
@@ -11147,6 +11156,9 @@
     "Turn" : {
 
     },
+    "TURN" : {
+
+    },
     "Type" : {
       "localizations" : {
         "fa" : {
@@ -11783,6 +11795,9 @@
           }
         }
       }
+    },
+    "Waiting" : {
+
     },
     "What is QRS" : {
       "localizations" : {

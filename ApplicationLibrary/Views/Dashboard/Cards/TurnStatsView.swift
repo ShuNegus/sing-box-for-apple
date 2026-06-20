@@ -12,20 +12,16 @@ struct TurnStatsView: View {
     @State private var task: Task<Void, Never>?
 
     var body: some View {
-        Group {
-            if let stat {
-                VStack(alignment: .leading, spacing: 8) {
-                    Divider()
-                    HStack {
-                        Label("TURN", systemImage: "point.3.connected.trianglepath.dotted")
-                            .font(.subheadline.weight(.semibold))
-                        Spacer()
-                        statusBadge(stat)
-                    }
-                    statRow(String(localized: "Peers"), "\(stat.active)/\(stat.target)")
-                    statRow(String(localized: "Streams opened"), "\(stat.opened)")
-                }
+        VStack(alignment: .leading, spacing: 8) {
+            Divider()
+            HStack {
+                Label("TURN", systemImage: "point.3.connected.trianglepath.dotted")
+                    .font(.subheadline.weight(.semibold))
+                Spacer()
+                statusBadge(stat)
             }
+            statRow(String(localized: "Peers"), stat.map { "\($0.active)/\($0.target)" } ?? "—")
+            statRow(String(localized: "Streams opened"), stat.map { "\($0.opened)" } ?? "—")
         }
         .onAppear { start() }
         .onDisappear { stop() }
@@ -44,16 +40,16 @@ struct TurnStatsView: View {
     }
 
     @ViewBuilder
-    private func statusBadge(_ stat: TurnStat) -> some View {
+    private func statusBadge(_ stat: TurnStat?) -> some View {
         let (text, color) = stage(stat)
         Text(text)
             .font(.caption.weight(.medium))
             .foregroundStyle(color)
     }
 
-    private func stage(_ stat: TurnStat) -> (String, Color) {
-        if !stat.started {
-            return (String(localized: "Waiting"), .secondary)
+    private func stage(_ stat: TurnStat?) -> (String, Color) {
+        guard let stat, stat.started else {
+            return (String(localized: "Connecting…"), .orange)
         }
         if stat.active == 0 {
             return (String(localized: "Connecting…"), .orange)
@@ -80,13 +76,16 @@ struct TurnStatsView: View {
         task = nil
     }
 
-    // Prefer the outbound for the selected host; else the one with most active
-    // sessions (the in-use dialer).
+    // Prefer the outbound for the selected host; else the started one with most
+    // active sessions; else any entry (so target shows before the first dial).
     private func pick(_ all: [TurnStat]) -> TurnStat? {
         if let host = activeHost,
            let match = all.first(where: { $0.tag == "vk-turn-\(host)" }) {
             return match
         }
-        return all.filter(\.started).max { $0.active < $1.active }
+        if let started = all.filter(\.started).max(by: { $0.active < $1.active }) {
+            return started
+        }
+        return all.first
     }
 }
