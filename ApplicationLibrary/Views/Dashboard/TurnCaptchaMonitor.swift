@@ -8,7 +8,6 @@ public final class TurnCaptchaMonitor: ObservableObject {
     @Published public var showCaptcha = false
 
     private var task: Task<Void, Never>?
-    private var wasReachable = false
     private var suppressed = false
 
     public init() {}
@@ -23,7 +22,6 @@ public final class TurnCaptchaMonitor: ObservableObject {
         } else {
             task?.cancel()
             task = nil
-            wasReachable = false
             suppressed = false
             showCaptcha = false
         }
@@ -38,21 +36,25 @@ public final class TurnCaptchaMonitor: ObservableObject {
 
     private func loop() async {
         while !Task.isCancelled {
+            // Poll regardless of auto/manual mode: the local captcha server only
+            // appears when manual solving is actually needed — either the user
+            // chose manual, or auto solving failed and the core escalated to it.
             let enabled = await SharedPreferences.turnEnabled.get()
-            let manual = await SharedPreferences.turnCaptchaManual.get()
-            if enabled, manual {
+            if enabled {
                 let reachable = await TurnCaptcha.probe()
                 if reachable {
-                    if !wasReachable, !suppressed {
+                    // Show while reachable and not user-dismissed. Idempotent, so
+                    // it also re-shows after returning from background with the
+                    // server still up.
+                    if !suppressed, !showCaptcha {
                         showCaptcha = true
                     }
                 } else {
-                    suppressed = false
+                    suppressed = false // server gone => captcha solved/aborted
                     if showCaptcha {
-                        showCaptcha = false // server gone => captcha solved/aborted
+                        showCaptcha = false
                     }
                 }
-                wasReachable = reachable
             } else if showCaptcha {
                 showCaptcha = false
             }

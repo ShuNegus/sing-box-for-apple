@@ -257,10 +257,12 @@ struct MainView: View {
         }
         .onAppear {
             environments.postReload()
+            AppForegroundState.set(true)
         }
         .alert($alert)
         .globalChecks()
         .onChangeCompat(of: scenePhase) { newValue in
+            AppForegroundState.set(newValue == .active)
             if newValue == .active {
                 environments.postReload()
             }

@@ -92,6 +92,9 @@ struct TurnProfileControls: View {
             await SharedPreferences.turnEnabled.set(value)
             if value {
                 ensureSupportedSelected()
+                #if !os(tvOS)
+                    await TurnNotifications.requestAuthorizationIfNeeded()
+                #endif
             }
             await restartIfConnected()
         }
@@ -168,5 +171,10 @@ struct TurnProfileControls: View {
             hasTURN = false
         }
         groupModel.connect()
+        #if !os(tvOS)
+            if hasTURN {
+                await TurnNotifications.requestAuthorizationIfNeeded()
+            }
+        #endif
     }
 }
