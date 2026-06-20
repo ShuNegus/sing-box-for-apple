@@ -16,6 +16,19 @@ public class HTTPClient {
         return userAgent
     }
 
+    // Prepends `https://` when the user-entered URL has no scheme (e.g.
+    // "sub.bublik.pro/abc" -> "https://sub.bublik.pro/abc").
+    public static func normalizeURL(_ raw: String) -> String {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
+            return trimmed
+        }
+        if trimmed.range(of: "^[a-zA-Z][a-zA-Z0-9+.-]*://", options: .regularExpression) != nil {
+            return trimmed
+        }
+        return "https://" + trimmed
+    }
+
     private let client: any LibboxHTTPClientProtocol
 
     public init() {

@@ -46,12 +46,12 @@
 		3AE4D0BE2A6E2DDC009FEA9E /* Library.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3AEC211D2A459B4700A63465 /* Library.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3AE595822F08C3D400C13426 /* Library.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AEC211D2A459B4700A63465 /* Library.framework */; };
 		3AE595AA2F08C61600C13426 /* RootHelper in Copy Helpers */ = {isa = PBXBuildFile; fileRef = 3AE595712F08C34000C13426 /* RootHelper */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		3AE595B02F08D00000C13426 /* HelperService/LaunchDaemons/su.smd.sing-box.helper.plist in Copy LaunchDaemon */ = {isa = PBXBuildFile; fileRef = "3AE595AE2F08D00000C13426 /* HelperService/LaunchDaemons/su.smd.sing-box.helper.plist */"; };
+		3AE595B02F08D00000C13426 /* (null) in Copy LaunchDaemon */ = {isa = PBXBuildFile; };
 		3AE8490F2FC559980016E814 /* GhosttyTerminal in Frameworks */ = {isa = PBXBuildFile; platformFilters = (ios, macos, ); productRef = 3AE8490E2FC559980016E814 /* GhosttyTerminal */; };
 		3AE849112FC559A30016E814 /* GhosttyTheme in Frameworks */ = {isa = PBXBuildFile; platformFilters = (ios, macos, ); productRef = 3AE849102FC559A30016E814 /* GhosttyTheme */; };
 		3AEAEE992A4F16430059612D /* Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3A096F862A4ED3DE00D4A2ED /* Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		3AEECBF22A6DF40A006A0E0C /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AF342B12A4AA520002B34AC /* NetworkExtension.framework */; };
-		3AEECC1A2A6DFA79006A0E0C /* su.smd.sing-box.system.systemextension in Embed System Extensions */ = {isa = PBXBuildFile; fileRef = "3AEECBF12A6DF40A006A0E0C /* su.smd.sing-box.system.systemextension */"; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		3AEECC1A2A6DFA79006A0E0C /* (null) in Embed System Extensions */ = {isa = PBXBuildFile; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		3AEECC1D2A6DFA79006A0E0C /* Library.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AEC211D2A459B4700A63465 /* Library.framework */; };
 		3AEECC1E2A6DFA79006A0E0C /* Library.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3AEC211D2A459B4700A63465 /* Library.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3AEECC352A6DFDAD006A0E0C /* MacLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AEECC2F2A6DFDAD006A0E0C /* MacLibrary.framework */; };
@@ -403,7 +403,7 @@
 			dstPath = ../Library/LaunchDaemons;
 			dstSubfolderSpec = 7;
 			files = (
-				3AE595B02F08D00000C13426 /* HelperService/LaunchDaemons/su.smd.sing-box.helper.plist in Copy LaunchDaemon */,
+				3AE595B02F08D00000C13426 /* (null) in Copy LaunchDaemon */,
 			);
 			name = "Copy LaunchDaemon";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -425,7 +425,7 @@
 			dstPath = "$(SYSTEM_EXTENSIONS_FOLDER_PATH)";
 			dstSubfolderSpec = 16;
 			files = (
-				3AEECC1A2A6DFA79006A0E0C /* su.smd.sing-box.system.systemextension in Embed System Extensions */,
+				3AEECC1A2A6DFA79006A0E0C /* (null) in Embed System Extensions */,
 			);
 			name = "Embed System Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1244,7 +1244,6 @@
 			);
 			name = SystemExtension;
 			productName = SystemExtension;
-			productReference = "3AEECBF12A6DF40A006A0E0C /* su.smd.sing-box.system.systemextension */";
 			productType = "com.apple.product-type.system-extension";
 		};
 		3AEECC032A6DF9CA006A0E0C /* SFM.System */ = {

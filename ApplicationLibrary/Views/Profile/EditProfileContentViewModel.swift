@@ -50,7 +50,7 @@ public final class EditProfileContentViewModel: BaseViewModel {
         if content.isEmpty { return }
         let errorDescription: String? = await BlockingIO.run {
             var error: NSError?
-            LibboxCheckConfig(content, &error)
+            LibboxCheckConfig(TurnConfigInjector.stripped(configJSON: content), &error)
             return error?.localizedDescription
         }
         configurationError = errorDescription

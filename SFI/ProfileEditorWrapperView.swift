@@ -1,5 +1,6 @@
 import ApplicationLibrary
 import Libbox
+import Library
 import SwiftUI
 
 struct ProfileEditorWrapperView: View {
@@ -48,7 +49,7 @@ struct ProfileEditorWrapperView: View {
         let content = text
         if content.isEmpty { return }
         var error: NSError?
-        LibboxCheckConfig(content, &error)
+        LibboxCheckConfig(TurnConfigInjector.stripped(configJSON: content), &error)
         if let error {
             configurationError = error.localizedDescription
         } else {

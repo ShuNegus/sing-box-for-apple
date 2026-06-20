@@ -237,7 +237,15 @@ public class ExtensionProfile: ObservableObject {
         }
 
         let configContent = try await profile.readAsync()
-        options["configContent"] = NSString(string: configContent)
+        let turnPreferences = await TurnPreferences(
+            enabled: SharedPreferences.turnEnabled.get(),
+            vkLink: SharedPreferences.turnVKLink.get(),
+            peers: SharedPreferences.turnPeers.get(),
+            captchaManual: SharedPreferences.turnCaptchaManual.get(),
+            selectedServer: SharedPreferences.turnSelectedServer.get()
+        )
+        let finalContent = TurnConfigInjector.transform(configJSON: configContent, preferences: turnPreferences)
+        options["configContent"] = NSString(string: finalContent)
 
         #if os(macOS)
             options["oomKillerEnabled"] = await NSNumber(value: SharedPreferences.oomKillerEnabled.get())
