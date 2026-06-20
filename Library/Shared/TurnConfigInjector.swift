@@ -86,6 +86,9 @@ public enum TurnConfigInjector {
                     for (key, value) in server.fields { options[key] = value }
                     options["vk_link"] = vkLink
                     options["num_streams"] = preferences.peers
+                    // Share one VK credential across all streams → a single
+                    // captcha per connect (cred count = num_streams/streams_per_cred).
+                    options["streams_per_cred"] = preferences.peers
                     options["manual_captcha"] = preferences.captchaManual
                     injected.append(options)
                     outbounds[index]["detour"] = turnTag

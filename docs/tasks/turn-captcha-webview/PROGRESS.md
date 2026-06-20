@@ -20,3 +20,12 @@ captcha=Manual → инжектор ставит `manual_captcha:true` → clien
 ## Риск (проверить на девайсе)
 - **Достучится ли приложение до loopback расширения** (`127.0.0.1:8765`) — главное допущение. Если нет — MVP невалиден, нужен command-канал (отдельная фича).
 - Капча VK появляется не всегда — для теста надо поймать.
+
+## Фикс — капча показывалась многократно (девайс)
+Webview/loopback работают (шит появляется и закрывается = токен доходит до ядра). Но капча
+повторялась: vk-turn просит **по капче на каждый credential**, число credential =
+`num_streams / streams_per_cred`. Шаблон забил `streams_per_cred: 2` при `num_streams=10` (peers)
+→ 5 credential → 5 капч. (Кэш по `cacheKey=streamID/streams_per_cred`, потоки одного cacheKey
+переиспользуют credential — `getVkCredsCached`.) **Фикс:** инжектор ставит
+`streams_per_cred = num_streams` (peers) → 1 credential = **1 капча** (дефолтное поведение референса).
+Только Swift, без пересборки Libbox. Проверено standalone: num_streams=20/streams_per_cred=20 → 1.

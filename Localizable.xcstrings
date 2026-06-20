@@ -4912,7 +4912,7 @@
         }
       }
     },
-    "How the VK captcha is solved. Automatic solves it in the background. Manual (webview) is not available yet." : {
+    "How the VK captcha is solved. Automatic solves it in the background. Manual opens a webview to solve it by hand." : {
 
     },
     "http://..." : {
@@ -7785,6 +7785,9 @@
         }
       }
     },
+    "Opens the captcha webview manually if it didn't appear automatically while connecting." : {
+
+    },
     "Optional" : {
       "localizations" : {
         "fa" : {
@@ -9793,6 +9796,9 @@
           }
         }
       }
+    },
+    "Solve Captcha" : {
+
     },
     "Sort By" : {
       "localizations" : {
