@@ -30,6 +30,10 @@ struct TurnProfileControls: View {
                     Label("Connect through TURN", systemImage: "phone.connection.fill")
                 }
                 serverPicker
+                if turnEnabled {
+                    // Self-gating: shows nothing until the tunnel reports live stats.
+                    TurnStatsView(activeHost: activeHost)
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -68,6 +72,14 @@ struct TurnProfileControls: View {
 
     private var mainGroup: OutboundGroup? {
         groupModel.groups.first { $0.selectable && !$0.items.isEmpty }
+    }
+
+    // Host of the currently-selected server, for matching the live stats entry.
+    private var activeHost: String? {
+        if let group = mainGroup {
+            return tagToHost[group.selected]
+        }
+        return tagToHost[offlineSelection]
     }
 
     private func tagSupported(_ tag: String) -> Bool {
