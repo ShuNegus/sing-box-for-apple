@@ -16,6 +16,7 @@ open class ExtensionProvider: NEPacketTunnelProvider {
     private lazy var platformInterface = ExtensionPlatformInterface(self)
     public var tunnelOptions: [String: NSObject]?
     private var startOptionsURL: URL?
+    private let captchaNotifier = CaptchaNotifier()
 
     public struct OverridePreferences {
         public var includeAllNetworks: Bool = false
@@ -208,6 +209,7 @@ open class ExtensionProvider: NEPacketTunnelProvider {
             throw error
         }
         writeMessage("(packet-tunnel): Here I stand")
+        captchaNotifier.start()
         #if os(macOS)
             if Variant.useSystemExtension {
                 xpcService.markServiceReady()
@@ -279,6 +281,7 @@ open class ExtensionProvider: NEPacketTunnelProvider {
 
     override open func stopTunnel(with reason: NEProviderStopReason) async {
         writeMessage("(packet-tunnel) stopping, reason: \(reason)")
+        captchaNotifier.stop()
         stopService()
         if let server = commandServer {
             try? await Task.sleep(nanoseconds: 100 * NSEC_PER_MSEC)
