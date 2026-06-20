@@ -1,8 +1,5 @@
 import Library
 import SwiftUI
-#if !os(tvOS)
-    import UserNotifications
-#endif
 
 // Home-card controls shown when the active subscription carries a `turn` block:
 // a TURN on/off switch and a server picker. When TURN is on the picker hides
@@ -95,18 +92,12 @@ struct TurnProfileControls: View {
             await SharedPreferences.turnEnabled.set(value)
             if value {
                 ensureSupportedSelected()
-                await requestNotificationPermission()
+                #if !os(tvOS)
+                    await TurnNotifications.requestAuthorizationIfNeeded()
+                #endif
             }
             await restartIfConnected()
         }
-    }
-
-    // Ask for notification permission so the tunnel process can alert about a
-    // captcha while the app is backgrounded. Foreground webview works regardless.
-    private func requestNotificationPermission() async {
-        #if !os(tvOS)
-            _ = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])
-        #endif
     }
 
     private func selectLive(_ group: OutboundGroup, _ tag: String) {
@@ -180,5 +171,10 @@ struct TurnProfileControls: View {
             hasTURN = false
         }
         groupModel.connect()
+        #if !os(tvOS)
+            if hasTURN {
+                await TurnNotifications.requestAuthorizationIfNeeded()
+            }
+        #endif
     }
 }
