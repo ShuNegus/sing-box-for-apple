@@ -6,6 +6,7 @@ public struct TurnSettingView: View {
     @State private var vkLink = ""
     @State private var peers = 10
     @State private var captchaManual = false
+    @State private var showCaptcha = false
 
     public init() {}
 
@@ -63,11 +64,30 @@ public struct TurnSettingView: View {
                             }
                         }
                     } footer: {
-                        Text("How the VK captcha is solved. Automatic solves it in the background. Manual (webview) is not available yet.")
+                        Text("How the VK captcha is solved. Automatic solves it in the background. Manual opens a webview to solve it by hand.")
                     }
+
+                    #if !os(tvOS)
+                        if captchaManual {
+                            Section {
+                                FormButton {
+                                    showCaptcha = true
+                                } label: {
+                                    Label("Solve Captcha", systemImage: "checkmark.shield")
+                                }
+                            } footer: {
+                                Text("Opens the captcha webview manually if it didn't appear automatically while connecting.")
+                            }
+                        }
+                    #endif
                 }
             }
         }
+        #if !os(tvOS)
+        .sheet(isPresented: $showCaptcha) {
+            TurnCaptchaSheet()
+        }
+        #endif
         .navigationTitle("Turn")
         #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
