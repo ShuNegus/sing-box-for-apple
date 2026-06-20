@@ -27,7 +27,14 @@ struct TurnProfileControls: View {
             if hasTURN {
                 Divider()
                 Toggle(isOn: Binding(get: { turnEnabled }, set: setTurnEnabled)) {
-                    Label("Connect through TURN", systemImage: "phone.connection.fill")
+                    Label {
+                        Text("Connect through TURN")
+                    } icon: {
+                        Image("VKTurn")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 22, height: 22)
+                    }
                 }
                 serverPicker
             }

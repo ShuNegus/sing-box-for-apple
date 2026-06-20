@@ -54,8 +54,19 @@ public struct SettingView: View {
             }
         #endif
 
+        @ViewBuilder
         var label: some View {
-            Label(title, systemImage: iconImage)
+            if self == .turn {
+                Label {
+                    Text(title)
+                } icon: {
+                    Image("VKTurn")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                }
+            } else {
+                Label(title, systemImage: iconImage)
+            }
         }
 
         var title: String {
