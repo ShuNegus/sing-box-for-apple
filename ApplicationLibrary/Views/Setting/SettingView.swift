@@ -60,7 +60,7 @@ public struct SettingView: View {
                 Label {
                     Text(title)
                 } icon: {
-                    Image("VKTurn", bundle: ApplicationLibrary.bundle)
+                    Image("VKTurn")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                 }

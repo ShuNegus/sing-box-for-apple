@@ -13,7 +13,7 @@ public struct DashboardCardHeader: View {
 
     // Custom asset icon (e.g. a brand logo) rendered in its original colors.
     public init(image name: String, title: LocalizedStringKey) {
-        image = Image(name, bundle: ApplicationLibrary.bundle)
+        image = Image(name)
         tinted = false
         self.title = title
     }
