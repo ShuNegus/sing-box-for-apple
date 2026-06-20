@@ -6,6 +6,9 @@ import SwiftUI
 // while the card itself is hidden.
 @MainActor
 public final class TurnStatsModel: ObservableObject {
+    // Whether the TURN switch is on (drives card visibility together with the
+    // tunnel status). The snapshot only fills in the numbers.
+    @Published public private(set) var enabled = false
     @Published public private(set) var current: TurnStat?
 
     private var task: Task<Void, Never>?
@@ -16,10 +19,15 @@ public final class TurnStatsModel: ObservableObject {
         guard task == nil else { return }
         task = Task { [weak self] in
             while !Task.isCancelled {
-                let all = await TurnStats.fetchAll()
-                // The in-use server is the one whose lazy dialer has started.
-                let stat = all.filter(\.started).max(by: { $0.active < $1.active })
-                self?.current = stat
+                let on = await SharedPreferences.turnEnabled.get()
+                self?.enabled = on
+                if on {
+                    let all = await TurnStats.fetchAll()
+                    // The in-use server is the one whose lazy dialer has started.
+                    self?.current = all.filter(\.started).max(by: { $0.active < $1.active })
+                } else {
+                    self?.current = nil
+                }
                 try? await Task.sleep(nanoseconds: 2_000_000_000)
             }
         }
@@ -28,6 +36,7 @@ public final class TurnStatsModel: ObservableObject {
     public func stop() {
         task?.cancel()
         task = nil
+        enabled = false
         current = nil
     }
 }
@@ -35,9 +44,9 @@ public final class TurnStatsModel: ObservableObject {
 // Full-width dashboard card with live TURN pipeline stats. Rendered only when a
 // started vk-turn outbound exists (connected through TURN), above System HTTP Proxy.
 public struct TurnStatsCard: View {
-    let stat: TurnStat
+    let stat: TurnStat?
 
-    public init(stat: TurnStat) {
+    public init(stat: TurnStat?) {
         self.stat = stat
     }
 
@@ -49,8 +58,8 @@ public struct TurnStatsCard: View {
                     Spacer()
                     statusBadge
                 }
-                statRow(String(localized: "Peers"), "\(stat.active)/\(stat.target)")
-                statRow(String(localized: "Streams opened"), "\(stat.opened)")
+                statRow(String(localized: "Peers"), stat.map { "\($0.active)/\($0.target)" } ?? "—")
+                statRow(String(localized: "Streams opened"), stat.map { "\($0.opened)" } ?? "—")
             }
         }
     }
@@ -76,7 +85,7 @@ public struct TurnStatsCard: View {
     }
 
     private var stage: (String, Color) {
-        if stat.active == 0 {
+        guard let stat, stat.active > 0 else {
             return (String(localized: "Connecting…"), .orange)
         }
         if stat.active < stat.target {

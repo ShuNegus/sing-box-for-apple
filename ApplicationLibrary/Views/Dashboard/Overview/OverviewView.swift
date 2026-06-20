@@ -58,8 +58,8 @@ public struct OverviewView: View {
 
         VStack(spacing: 16) {
             ForEach(Array(groupedCards.enumerated()), id: \.offset) { index, group in
-                if index == turnInsertIndex, let stat = turnStats.current {
-                    TurnStatsCard(stat: stat)
+                if index == turnInsertIndex, turnStats.enabled, profile.status.isConnected {
+                    TurnStatsCard(stat: turnStats.current)
                 }
                 if group.count == 2 {
                     HStack(spacing: 16) {
