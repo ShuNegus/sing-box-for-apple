@@ -54,7 +54,7 @@ public struct TurnStatsCard: View {
         DashboardCardView(title: "", isHalfWidth: false) {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    DashboardCardHeader(icon: "point.3.connected.trianglepath.dotted", title: "TURN")
+                    DashboardCardHeader(image: "VKTurn", title: "TURN")
                     Spacer()
                     statusBadge
                 }
