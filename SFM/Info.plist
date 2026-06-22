@@ -124,5 +124,10 @@
 	<string>As a universal proxy platform, sing-box configures routing according to your configuration.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera access is required to scan QR codes for importing profiles.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

@@ -9,6 +9,7 @@ public struct MainView: View {
     @Environment(\.controlActiveState) private var controlActiveState
     @EnvironmentObject private var environments: ExtensionEnvironments
     @StateObject private var viewModel: MainViewModel
+    @StateObject private var captchaMonitor = TurnCaptchaMonitor()
     @State private var showCardManagement = false
     @State private var cardConfigurationVersion = 0
     @State private var remoteServers: [RemoteServer] = []
@@ -94,6 +95,8 @@ public struct MainView: View {
         .onAppear {
             viewModel.onAppear(environments: environments)
             Task { await reloadRemoteServers() }
+            AppForegroundState.set(controlActiveState != .inactive)
+            captchaMonitor.setActive(true)
         }
         .alert($viewModel.alert)
         .globalChecks()
@@ -123,6 +126,7 @@ public struct MainView: View {
             }
         }
         .onChangeCompat(of: controlActiveState) { newValue in
+            AppForegroundState.set(newValue != .inactive)
             Task { @MainActor in
                 viewModel.onControlActiveStateChange(newValue, environments: environments)
             }
@@ -170,6 +174,12 @@ public struct MainView: View {
         }, content: {
             CardManagementSheet()
                 .frame(minWidth: 400, minHeight: 400)
+        })
+        .sheet(isPresented: $captchaMonitor.showCaptcha, onDismiss: {
+            captchaMonitor.userDismissed()
+        }, content: {
+            TurnCaptchaSheet()
+                .frame(minWidth: 480, minHeight: 600)
         })
         .onReceive(NotificationCenter.default.publisher(for: .remoteServersUpdated)) { _ in
             Task { @MainActor in
