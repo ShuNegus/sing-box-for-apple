@@ -33,3 +33,21 @@ VK обновил captcha-флоу. Референс-фикс — `samosvalishe/
 - `vk-turn: [STREAM N] [Captcha] Solving... / Success! / Auto captcha failed / Triggering manual ...`
 - `vk-turn: ... VK API error: ...` или `FATAL` — финальный сбой.
 - DNS-сбои всплывут как ошибки dial при попытке коннекта.
+
+## DNS-фоллбеки (устойчивость на будущее)
+Проблема: clientcore резолвил только через UDP:53 к 6 IP, причём `net.Dial("udp")` всегда «успешен» (нет рукопожатия) → реального фоллбека нет, при блокировке UDP:53 DNS отваливался. Нет DoH/TCP.
+
+Сделано (vendored `moroka8/pkg/clientcore/resolver_fallback.go`, новый):
+- **`newFallbackResolver`** — `net.Resolver`, чей Dial возвращает синтетический **`net.PacketConn`** (важно: без PacketConn `net.Resolver` использует stream-режим с 2-байтным length-префиксом → «unexpected EOF»; PacketConn = датаграммный фрейминг без префикса).
+- **UDP-фастпас конкурентно**: все UDP-серверы опрашиваются параллельно (`udpFanout`), первый валидный ответ выигрывает, общий дедлайн 1.5с (раньше мёртвый сервер вис 2с последовательно).
+- **DoH-фоллбек (HTTPS/443)** когда UDP недоступен: wireformat POST по IP (без bootstrap-DNS), SNI = провайдер. Порядок: **Yandex** (77.88.8.8) → Google (8.8.8.8) → Cloudflare (1.1.1.1).
+- Грабля Cloudflare: 400 без явного `Content-Length` → проставлен `req.ContentLength` + `GetBody`.
+- Установлен в `setupGlobalResolver` (net.DefaultResolver) и `getCustomNetDialer`.
+
+Yandex — первый и в UDP-списке, и в DoH (наиболее доступен в РФ).
+
+Тесты (go test, реальная сеть):
+- real-udp LookupHost: ок, 1.4мс.
+- DoH end-to-end (UDP-список пуст → чистый DoH): vk.com/api.vk.com/dns.google/cloudflare.com → реальные IPv4+IPv6, 100–530мс.
+- Yandex DoH wireformat: 4/4 на 77.88.8.8 и 77.88.8.1. Google 4/4, Cloudflare 3/3 (после Content-Length фикса).
+- Ядро + Libbox пересобраны; SFI + SFM BUILD SUCCEEDED.
