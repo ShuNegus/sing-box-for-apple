@@ -11,6 +11,9 @@ public struct NewProfileMenuView: View {
     @State private var alert: AlertState?
     @State private var importRequest: NewProfileView.ImportRequest?
     @State private var localImportRequest: NewProfileView.LocalImportRequest?
+    #if !os(tvOS)
+        @State private var pasting = false
+    #endif
     #if os(tvOS)
         @State private var importCompleted = false
     #else
@@ -156,6 +159,14 @@ public struct NewProfileMenuView: View {
 
                 #if !os(tvOS)
                     FormButton {
+                        pasteFromClipboard()
+                    } label: {
+                        Label("Paste from Clipboard", systemImage: "doc.on.clipboard")
+                    }
+                #endif
+
+                #if !os(tvOS)
+                    FormButton {
                         showFileImporter = true
                     } label: {
                         Label("Import from File", systemImage: "doc.badge.plus")
@@ -189,7 +200,59 @@ public struct NewProfileMenuView: View {
                 #endif
             }
         }
+        #if !os(tvOS)
+        .disabled(pasting)
+        .overlay {
+            if pasting {
+                ZStack {
+                    Color.black.opacity(0.15).ignoresSafeArea()
+                    ProgressView()
+                        .padding(24)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                }
+            }
+        }
+        #endif
     }
+
+    #if !os(tvOS)
+        private func pasteFromClipboard() {
+            let raw = (Clipboard.string ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !raw.isEmpty else {
+                alert = AlertState(errorMessage: String(localized: "Clipboard is empty"))
+                return
+            }
+
+            let viewModel = NewProfileViewModel()
+            viewModel.profileType = .remote
+            viewModel.remotePath = raw
+            viewModel.profileName = Self.profileName(from: raw)
+
+            pasting = true
+            Task { @MainActor in
+                await viewModel.createProfile(
+                    environments: environments,
+                    onSuccess: { profile in
+                        await SharedPreferences.selectedProfileID.set(profile.mustID)
+                    }
+                )
+                pasting = false
+                if let pasteAlert = viewModel.alert {
+                    alert = pasteAlert
+                } else if viewModel.createSucceeded {
+                    dismiss()
+                }
+            }
+        }
+
+        private static func profileName(from raw: String) -> String {
+            let normalized = HTTPClient.normalizeURL(raw)
+            if let url = URL(string: normalized), let host = url.host, !host.isEmpty {
+                return host
+            }
+            return String(localized: "Subscription")
+        }
+    #endif
 
     #if !os(tvOS)
         private func handleFileImport(_ result: Result<[URL], Error>) {
