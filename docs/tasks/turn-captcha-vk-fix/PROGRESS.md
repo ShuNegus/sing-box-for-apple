@@ -22,3 +22,14 @@ VK обновил captcha-флоу. Референс-фикс — `samosvalishe/
 
 ## NB
 - Изменение в vendored-репо (`Turn/References/moroka8/...`) — рабочее дерево; в Libbox влито через replace. Клиентский коммит — только доки (Libbox gitignored).
+
+## Расширение логов (диагностика "не работает")
+- `protocol/vkturn/logbridge.go` (новый, ядро): мост stdlib `log` → sing-box ContextLogger (префикс `vk-turn:`). Подключён в `NewOutbound` (`setupLogForwarding`).
+- Теперь строки clientcore `[VK Auth]`/`[Captcha]`/`[STREAM]`/`VK API error`/`FATAL` видны в **Logs приложения** (раньше libbox их не пробрасывал). Большинство — не под isDebug, точка отказа видна без debug-флага.
+- Ядро собрано, Libbox пересобран, SFI BUILD SUCCEEDED.
+
+### Что искать в Logs (mac/iOS) после переподключения через TURN:
+- `vk-turn: [STREAM N] [VK Auth] ...` — этап авторизации/ошибки.
+- `vk-turn: [STREAM N] [Captcha] Solving... / Success! / Auto captcha failed / Triggering manual ...`
+- `vk-turn: ... VK API error: ...` или `FATAL` — финальный сбой.
+- DNS-сбои всплывут как ошибки dial при попытке коннекта.
