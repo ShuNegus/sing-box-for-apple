@@ -1392,6 +1392,9 @@
         }
       }
     },
+    "Clipboard is empty" : {
+
+    },
     "Close" : {
       "localizations" : {
         "fa" : {
@@ -8018,6 +8021,9 @@
         }
       }
     },
+    "Paste from Clipboard" : {
+
+    },
     "Path" : {
       "localizations" : {
         "fa" : {
@@ -10424,6 +10430,9 @@
           }
         }
       }
+    },
+    "Subscription" : {
+
     },
     "System Default" : {
       "localizations" : {
